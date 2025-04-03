@@ -1,0 +1,94 @@
+{
+  "1": {
+    "inputs": {
+      "mask_grow": 25,
+      "mixed_precision": "fp16",
+      "seed": 1031147278480810,
+      "steps": 40,
+      "cfg": 3,
+      "image": ["2", 0],
+      "mask": ["16", 0],
+      "refer_image": ["7", 0]
+    },
+    "class_type": "CatVTONWrapper",
+    "_meta": {
+      "title": "CatVTON Wrapper"
+    }
+  },
+  "2": {
+    "inputs": {
+      "image": "test2.jpg",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "7": {
+    "inputs": {
+      "image": "pasted/image.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "8": {
+    "inputs": {
+      "images": ["1", 0]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "11": {
+    "inputs": {
+      "mask": ["16", 0]
+    },
+    "class_type": "LayerMask: MaskPreview",
+    "_meta": {
+      "title": "LayerMask: MaskPreview"
+    }
+  },
+  "16": {
+    "inputs": {
+      "background": false,
+      "hat": true,
+      "hair": false,
+      "glove": false,
+      "sunglasses": false,
+      "upper_clothes": true,
+      "dress": true,
+      "coat": true,
+      "socks": false,
+      "pants": true,
+      "jumpsuits": true,
+      "scarf": true,
+      "skirt": true,
+      "face": false,
+      "left_arm": true,
+      "right_arm": true,
+      "left_leg": true,
+      "right_leg": true,
+      "left_shoe": false,
+      "right_shoe": false,
+      "image": ["2", 0]
+    },
+    "class_type": "Cozy Human Parser LIP",
+    "_meta": {
+      "title": "Cozy Human Parser LIP"
+    }
+  },
+  "18": {
+    "inputs": {
+      "images": ["1", 0]
+    },
+    "class_type": "SaveImageWebsocket",
+    "_meta": {
+      "title": "이미지 웹소켓 전송"
+    }
+  }
+}

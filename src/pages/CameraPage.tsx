@@ -1,31 +1,34 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
-import { pageVariants } from "../constants/animations";
+import React, { useState, useRef, useCallback } from "react";
 import { PageProps } from "../types";
-import { useCamera } from "../hooks/useCamera";
+import { pageVariants } from "../constants/animations";
+import { motion } from "framer-motion";
+import Webcam from "react-webcam";
+import { PHOTO_STORAGE_KEY } from "../config";
 
 const CameraPage: React.FC<PageProps> = ({ onNext }) => {
-  const { videoRef, canvasRef, capturedPhotos, capturePhoto } = useCamera();
-  const [countdown, setCountdown] = useState<number | null>(null);
-  const [timerOption, setTimerOption] = useState<number>(3);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const webcamRef = useRef<Webcam>(null);
+  const maxPhotos = 1;
 
-  // 타이머 시작
-  const startTimer = () => {
-    console.log("타이머 시작");
-    if (capturedPhotos.length >= 4) return;
+  // 사진 촬영 함수
+  const capturePhoto = useCallback(() => {
+    if (photos.length >= maxPhotos) return;
 
-    setCountdown(timerOption);
+    const imageSrc = webcamRef.current?.getScreenshot();
+    if (imageSrc) {
+      setPhotos((prevPhotos) => [...prevPhotos, imageSrc]);
+    }
+  }, [photos]);
 
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === 1) {
-          clearInterval(timer);
-          capturePhoto();
-          return null;
-        }
-        return prev ? prev - 1 : null;
-      });
-    }, 1000);
+  // 사진 다시 찍기
+  const retakePhotos = () => {
+    setPhotos([]);
+  };
+
+  // 다음 단계로 진행 및 localStorage에 사진 저장
+  const handleNext = () => {
+    localStorage.setItem(PHOTO_STORAGE_KEY, JSON.stringify(photos));
+    onNext();
   };
 
   return (
@@ -35,127 +38,84 @@ const CameraPage: React.FC<PageProps> = ({ onNext }) => {
       animate="animate"
       exit="exit"
       variants={pageVariants}
-      className="flex flex-col items-center justify-between min-h-screen p-4 bg-gray-100"
-      style={{ position: "absolute", width: "100%" }}
+      className="absolute w-full h-full flex flex-col items-center justify-between bg-violet-100 p-4"
     >
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center my-4">사진 촬영</h1>
+      <h1 className="text-3xl font-bold text-violet-800 mb-2">사진 촬영</h1>
 
-        {/* 카메라 화면 */}
-        <div className="relative overflow-hidden rounded-lg shadow-lg aspect-[3/4] bg-black mb-4">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-full object-cover mirror"
+      <div className="flex flex-col items-center w-full max-w-md">
+        {/* 촬영 상태 표시 */}
+        <div className="w-full text-center mb-2 font-bold text-violet-700">
+          {photos.length}/{maxPhotos}장 촬영 완료
+        </div>
+
+        {/* 웹캠 컴포넌트 */}
+        <div className="bg-black rounded-lg overflow-hidden mb-3 w-full">
+          <Webcam
+            audio={false}
+            ref={webcamRef}
+            screenshotFormat="image/webp"
+            videoConstraints={{ facingMode: "user" }}
+            className="w-full"
           />
-
-          {countdown && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-6xl font-bold text-white bg-black bg-opacity-50 rounded-full w-24 h-24 flex items-center justify-center">
-                {countdown}
-              </span>
-            </div>
-          )}
         </div>
 
-        {/* 타이머 버튼 */}
-        <div className="flex justify-center gap-2 mb-4">
-          <button
-            className={`px-3 py-1 rounded ${
-              timerOption === 3 ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setTimerOption(3)}
-          >
-            3초
-          </button>
-          <button
-            className={`px-3 py-1 rounded ${
-              timerOption === 5 ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setTimerOption(5)}
-          >
-            5초
-          </button>
-          <button
-            className={`px-3 py-1 rounded ${
-              timerOption === 10 ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setTimerOption(10)}
-          >
-            10초
-          </button>
-        </div>
-
-        {/* 촬영 버튼 */}
-        <div className="flex justify-center">
-          <button
-            className="px-6 py-3 bg-red-500 text-white rounded-full shadow-lg disabled:opacity-50"
-            onClick={startTimer}
-            disabled={countdown !== null || capturedPhotos.length >= 4}
-          >
-            {countdown
-              ? `${countdown}초`
-              : `촬영하기 (${capturedPhotos.length}/4)`}
-          </button>
-        </div>
-
-        {/* 사진 미리보기 */}
-        <div className="mt-6">
-          <h2 className="text-lg font-medium text-center mb-2">촬영된 사진</h2>
-          <div className="flex justify-center gap-3 overflow-x-auto p-2">
-            {[...Array(4)].map((_, index) => (
+        {/* 촬영된 사진들 - 1열 가로로 변경 */}
+        <div className="flex flex-row gap-1 mb-3 w-full overflow-x-auto">
+          {Array(maxPhotos)
+            .fill(0)
+            .map((_, index) => (
               <div
                 key={index}
-                className="w-20 h-20 border-2 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 shadow-sm transition-all"
-                style={{
-                  borderColor: capturedPhotos[index] ? "#4CAF50" : "#e0e0e0",
-                  opacity: capturedPhotos[index] ? 1 : 0.7,
-                }}
+                className="w-16 h-16 flex-shrink-0 bg-gray-200 rounded-md overflow-hidden flex items-center justify-center"
               >
-                {capturedPhotos[index] ? (
+                {photos[index] ? (
                   <img
-                    src={capturedPhotos[index]}
-                    alt={`사진 ${index + 1}`}
+                    src={photos[index]}
+                    alt={`Photo ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-gray-400">
-                    {index + 1}
-                  </div>
+                  <span className="text-gray-500">{index + 1}</span>
                 )}
               </div>
             ))}
-          </div>
         </div>
       </div>
 
-      {/* 하단 영역 */}
-      <div className="w-full max-w-md pb-8 pt-4">
+      <div className="flex flex-col gap-3 w-full max-w-md">
         <button
-          onClick={onNext}
-          className={`w-full py-3 rounded-lg font-medium transition-colors ${
-            capturedPhotos.length === 4
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "bg-gray-300 text-gray-500"
+          onClick={capturePhoto}
+          disabled={photos.length >= maxPhotos}
+          className={`px-8 py-3 rounded-full font-bold text-lg shadow-lg transition-colors duration-300 ${
+            photos.length >= maxPhotos
+              ? "bg-gray-400 text-white"
+              : "bg-violet-600 text-white hover:bg-violet-700"
           }`}
-          disabled={capturedPhotos.length < 4}
         >
-          다음 단계로
+          {photos.length >= maxPhotos ? "완료" : "사진 찍기"}
         </button>
+
+        <div className="flex gap-3 w-full">
+          <button
+            onClick={retakePhotos}
+            className="flex-1 bg-white text-violet-700 border border-violet-600 px-4 py-2 rounded-full font-bold text-lg hover:bg-violet-50 transition-colors duration-300"
+          >
+            다시 찍기
+          </button>
+
+          <button
+            onClick={handleNext}
+            disabled={photos.length < maxPhotos}
+            className={`flex-1 px-4 py-2 rounded-full font-bold text-lg transition-colors duration-300 ${
+              photos.length < maxPhotos
+                ? "bg-gray-400 text-white"
+                : "bg-violet-600 text-white hover:bg-violet-700"
+            }`}
+          >
+            다음 단계
+          </button>
+        </div>
       </div>
-
-      {/* 숨겨진 캔버스 (사진 캡처용) */}
-      <canvas ref={canvasRef} style={{ display: "none" }} />
-
-      <style>
-        {`
-          .mirror {
-            transform: scaleX(-1);
-          }
-          `}
-      </style>
     </motion.div>
   );
 };
