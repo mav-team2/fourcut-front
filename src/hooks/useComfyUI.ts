@@ -83,8 +83,8 @@ export type ComfyResponse = {
   promptId: string | null;
   status: ComfyStatus;
   isLoading: boolean;
-  isDone: boolean;
-  getImage: () => Promise<string>;
+
+  // getImage: () => Promise<string>;
 };
 
 /*
@@ -94,17 +94,15 @@ useComfyUI 리턴 값
 2. promptId
 3. status : ComfyStatus
 4. isLoading : boolean
-5. isDone : boolean
 6. getImage : download image by calling `${COMFY_API_URL}/view?filename=${filename}`
 */
 
 export const useComfyUI = (): ComfyResponse => {
   const { clientId, connected, subscribe, subscribeBinary } = useWebSocket();
   const [promptId, setPromptId] = useState<string | null>(null);
-  const [filename, setFilename] = useState<string | null>(null);
+  // const [filename, setFilename] = useState<string | null>(null);
   const [status, setStatus] = useState<ComfyStatus>("status");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isDone, setIsDone] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const uploadImage = useCallback(async (image: string) => {
     const uploadUrl = COMFY_API_URL + "/upload/image";
@@ -161,7 +159,6 @@ export const useComfyUI = (): ComfyResponse => {
 
       const prompt_url = COMFY_API_URL + "/prompt";
       setIsLoading(true);
-      setIsDone(false);
 
       try {
         const response = await fetch(prompt_url, {
@@ -196,6 +193,8 @@ export const useComfyUI = (): ComfyResponse => {
     const handleMessage = async (message: ComfyStatusMessage) => {
       setStatus(message.type);
 
+      console.log("Received message:", message.type);
+
       // 메시지 타입에 따른 상태 처리
       switch (message.type) {
         case "execution_start":
@@ -203,54 +202,59 @@ export const useComfyUI = (): ComfyResponse => {
         case "executing":
         case "progress":
           setIsLoading(true);
-          setIsDone(false);
           break;
 
         case "executed": {
           const executedData = message.data as ComfyExecutedData;
-          if (
-            executedData.prompt_id === promptId &&
-            executedData.output?.images?.length > 0
-          ) {
-            const image = executedData.output.images[0];
-            setFilename(`${image.subfolder}/${image.filename}`);
-          }
+          // if (
+          //   executedData.prompt_id === promptId &&
+          //   executedData.output?.images?.length > 0
+          // ) {
+          //   const image = executedData.output.images[0];
+          //   setFilename(`${image.subfolder}/${image.filename}`);
+          // }
           break;
         }
 
         case "execution_success":
           setIsLoading(false);
-          setIsDone(true);
           break;
 
         case "execution_error":
         case "execution_interrupted":
           console.error("Execution error or interrupted");
           setIsLoading(false);
-          setIsDone(false);
           break;
       }
     };
 
-    const handleBinary = async (imageData: Blob, imageInfo: any) => {
-      const image = new Blob([imageData], { type: "image/png" });
-      const url = URL.createObjectURL(image);
-      const filename = imageInfo?.filename || "comfy_image.png";
+    const handleBinary = async (data: Blob) => {
+      console.log("Handle binary data:", data.slice(0, 8));
+      try {
+        // Blob을 ArrayBuffer로 변환
+        const arrayBuffer = await data.arrayBuffer();
 
-      // make download link and save image to local storage
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      link.click();
-      URL.revokeObjectURL(url);
-      console.log("Image saved:", filename);
+        // 앞의 8바이트를 제외한 새로운 ArrayBuffer 생성
+        const imageBuffer = arrayBuffer.slice(8);
 
-      // save image to local storage
-      localStorage.setItem(PROCESSED_PHOTO_STORAGE_KEY, url);
-      console.log("Image saved to local storage:", PROCESSED_PHOTO_STORAGE_KEY);
+        // 새 ArrayBuffer로 이미지 Blob 생성
+        const imageBlob = new Blob([imageBuffer], { type: "image/png" });
 
-      // set filename state
-      setFilename(filename);
+        // Blob을 Data URL로 변환
+        const url = URL.createObjectURL(imageBlob);
+
+        // localStorage에 저장
+
+        localStorage.setItem(PROCESSED_PHOTO_STORAGE_KEY, url);
+        console.log(
+          "Image saved to local storage:",
+          PROCESSED_PHOTO_STORAGE_KEY
+        );
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error processing binary data:", error);
+      }
     };
 
     const unsubscribe = subscribe(handleMessage);
@@ -263,36 +267,36 @@ export const useComfyUI = (): ComfyResponse => {
   }, [connected, subscribe, promptId, subscribeBinary]);
 
   // 생성된 이미지 가져오기
-  const getImage = useCallback(async () => {
-    if (!filename || !isDone) return "";
+  // const getImage = useCallback(async () => {
+  //   if (!filename || !isDone) return "";
 
-    const imageUrl = `${COMFY_API_URL}/view?filename=${encodeURIComponent(
-      filename
-    )}`;
+  //   const imageUrl = `${COMFY_API_URL}/view?filename=${encodeURIComponent(
+  //     filename
+  //   )}`;
 
-    try {
-      const response = await fetch(imageUrl, {
-        method: "GET",
-        headers: {
-          Authorization: `Basic ${btoa(`${COMFY_API_ID}:${COMFY_API_PW}`)}`,
-          "Content-Type": `application/json`,
-          // "ngrok-skip-browser-warning": "69420",
-        },
-      });
+  //   try {
+  //     const response = await fetch(imageUrl, {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Basic ${btoa(`${COMFY_API_ID}:${COMFY_API_PW}`)}`,
+  //         "Content-Type": `application/json`,
+  //         // "ngrok-skip-browser-warning": "69420",
+  //       },
+  //     });
 
-      const blob = await response.blob();
+  //     const blob = await response.blob();
 
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    } catch (error) {
-      console.error("이미지 가져오기 실패:", error);
-      return "";
-    }
-  }, [isDone, filename]);
+  //     return new Promise<string>((resolve, reject) => {
+  //       const reader = new FileReader();
+  //       reader.onloadend = () => resolve(reader.result as string);
+  //       reader.onerror = reject;
+  //       reader.readAsDataURL(blob);
+  //     });
+  //   } catch (error) {
+  //     console.error("이미지 가져오기 실패:", error);
+  //     return "";
+  //   }
+  // }, [isDone, filename]);
 
   return {
     uploadImage,
@@ -300,8 +304,7 @@ export const useComfyUI = (): ComfyResponse => {
     promptId,
     status,
     isLoading,
-    isDone,
-    getImage,
+    // getImage,
   };
 };
 

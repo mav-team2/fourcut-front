@@ -10,11 +10,8 @@ import React, {
 import { COMFY_WEBSOCKET_URL } from "../config";
 
 // 메시지 처리를 위한 타입
-type MessageHandler = (message: any) => void;
-type BinaryHandler = (
-  imageData: Blob,
-  imageInfo?: { filename?: string }
-) => void;
+type MessageHandler = (message: any) => Promise<void> | void;
+type BinaryHandler = (data: Blob) => Promise<void> | void;
 
 type WebSocketContextType = {
   // sendMessage: (msg: string) => void;
@@ -70,19 +67,19 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
       setConnected(true);
     };
 
-    ws.onmessage = (event) => {
+    ws.onmessage = async (event) => {
       // 바이너리 데이터 처리 (Blob 타입)
       if (event.data instanceof Blob) {
         console.log("Received binary data (image)");
 
         // 바이너리 핸들러에게 Blob 전달
-        binaryHandlersRef.current.forEach((handler) => {
+        for (const handler of binaryHandlersRef.current) {
           try {
-            handler(event.data);
+            await handler(event.data); // 비동기 핸들러 처리
           } catch (err) {
             console.error("Error in binary handler:", err);
           }
-        });
+        }
       } else {
         // 텍스트 데이터 처리 (JSON)
         try {
@@ -94,20 +91,15 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             console.log("Received server sid, setting as clientId:", sid);
             clientIdRef.current = sid;
           }
-          // 이미지 메타데이터가 포함된 경우 처리 (ComfyUI는 종종 이미지 전 메타데이터를 보냄)
-          else if (data.type === "image" && data.data) {
-            console.log("Received image metadata:", data);
-            // 메타데이터 처리 로직 (선택적)
-          }
 
           // 모든 등록된 핸들러에게 메시지 전달
-          messageHandlersRef.current.forEach((handler) => {
+          for (const handler of messageHandlersRef.current) {
             try {
-              handler(data);
+              await handler(data); // 비동기 핸들러 처리
             } catch (err) {
               console.error("Error in message handler:", err);
             }
-          });
+          }
         } catch (error) {
           console.error("Failed to parse WebSocket message:", error);
         }

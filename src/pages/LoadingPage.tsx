@@ -4,7 +4,7 @@ import prompt from "../assets/prompt.json";
 import { PageProps } from "../types";
 import { pageVariants } from "../constants/animations";
 import useComfyUI from "../hooks/useComfyUI";
-import { PHOTO_STORAGE_KEY, PROCESSED_PHOTO_STORAGE_KEY } from "../config";
+import { PHOTO_STORAGE_KEY } from "../config";
 
 const LoadingPage: React.FC<PageProps> = ({ onNext }) => {
   const {
@@ -13,11 +13,14 @@ const LoadingPage: React.FC<PageProps> = ({ onNext }) => {
     promptId,
     status,
     isLoading,
-    isDone,
-    getImage,
+    // getImage,
   } = useComfyUI();
 
   const [completeAnimation, setCompleteAnimation] = useState(false);
+
+  useEffect(() => {
+    console.log("isLoading in LoadingPage:", isLoading);
+  }, [isLoading]);
 
   // 사진 처리 시작
   useEffect(() => {
@@ -40,18 +43,14 @@ const LoadingPage: React.FC<PageProps> = ({ onNext }) => {
   // 처리 완료 후 다음 단계로 진행
   useEffect(() => {
     const saveProcessedImage = async () => {
-      const image = await getImage();
-      localStorage.setItem(PROCESSED_PHOTO_STORAGE_KEY, JSON.stringify(image));
-      return image;
+      // const image = await getImage();
+      // localStorage.setItem(PROCESSED_PHOTO_STORAGE_KEY, JSON.stringify(image));
+      // return image;
     };
 
-    if (isDone) {
-      const image = saveProcessedImage();
-
-      if (!image) {
-        console.error("No image found in localStorage");
-        throw new Error("No image found in localStorage");
-      }
+    if (!isLoading) {
+      console.log("image done");
+      // const image = saveProcessedImage();
 
       // 완료 애니메이션 표시 후 다음 페이지로 이동
       setCompleteAnimation(true);
@@ -61,7 +60,7 @@ const LoadingPage: React.FC<PageProps> = ({ onNext }) => {
 
       return () => clearTimeout(timer);
     }
-  }, [getImage, isDone, onNext]);
+  }, [isLoading, onNext]);
 
   return (
     <motion.div
@@ -77,19 +76,19 @@ const LoadingPage: React.FC<PageProps> = ({ onNext }) => {
       )}
       <motion.h1
         className="text-3xl font-bold text-white mb-2"
-        animate={{ scale: isDone ? 1.1 : 1 }}
+        animate={{ scale: !isLoading ? 1.1 : 1 }}
         transition={{ duration: 0.5 }}
       >
-        {isDone ? "처리 완료!" : "사진 처리 중..."}
+        {!isLoading ? "처리 완료!" : "사진 처리 중..."}
       </motion.h1>
       <p className="text-indigo-200 mb-8">
-        {isDone
+        {!isLoading
           ? "모든 처리가 완료되었습니다!"
           : status
           ? `처리 중: ${status}`
           : "이미지 처리 중..."}
       </p>
-      {!isDone && (
+      {isLoading && (
         <motion.div
           className="w-64 h-2 bg-indigo-700 rounded-full overflow-hidden"
           initial={{ opacity: 0 }}
@@ -99,12 +98,12 @@ const LoadingPage: React.FC<PageProps> = ({ onNext }) => {
           <motion.div
             className="h-full bg-white"
             initial={{ width: "0%" }}
-            animate={{ width: isDone ? "100%" : isLoading ? "70%" : "30%" }}
+            animate={{ width: !isLoading ? "100%" : isLoading ? "70%" : "30%" }}
             transition={{ duration: 0.8 }}
           />
         </motion.div>
       )}
-      {isDone && (
+      {!isLoading && (
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
