@@ -1,11 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useWebSocket } from "../contexts/websocketContext";
-import {
-  COMFY_API_ID,
-  COMFY_API_PW,
-  COMFY_API_URL,
-  PROCESSED_PHOTO_STORAGE_KEY,
-} from "../config";
+import { COMFY_API_URL, PROCESSED_PHOTO_STORAGE_KEY } from "../config";
 
 // ComfyUI 관련 상태 타입
 export type ComfyStatus =

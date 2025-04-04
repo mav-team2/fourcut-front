@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { PageProps } from "../types";
 import { pageVariants } from "../constants/animations";
 
-const BackgroundPage: React.FC<PageProps> = ({ onNext }) => (
+const BackgroundPage: React.FC<PageProps> = ({ onNext, onBack }) => (
   <motion.div
     key="background"
     initial="initial"
