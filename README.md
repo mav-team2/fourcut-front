@@ -12,7 +12,9 @@ nodejs 환경을 구성하고 환경변수를 작성해야합니다.
 
 ### 로컬 실행
 
-- 실행 이전에 `src/assets` 경로에 'prompt.json' 파일을 추가해야 합니다. \*
+1. **실행 이전에 `src/assets` 경로에 'prompt.json' 파일을 추가해야 합니다.**
+2. **cors 에러로 학교 내부망 접속해서 실행해야 합니다.**
+3. 실행 경로에 .env파일을 추가해주세요.
 
 ```shell
 npm install
