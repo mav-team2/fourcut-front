@@ -7,8 +7,9 @@ import GuidePage from "./pages/GuidePage";
 import LoadingPage from "./pages/LoadingPage";
 import CameraPage from "./pages/CameraPage";
 import BackgroundPage from "./pages/BackgroundPage";
+import ResultPage from "./pages/ResultPage";
 
-type Stage = "start" | "guide" | "camera" | "loading" | "background" | "test";
+type Stage = "start" | "guide" | "camera" | "loading" | "background" | "test" | "result";
 
 const App: React.FC = () => {
   const [stage, setStage] = useState<Stage>("start");
@@ -26,6 +27,8 @@ const App: React.FC = () => {
           return "background";
         case "background":
           return "test";
+        case "result":
+          return "start";
         default:
           return "start";
       }
@@ -63,6 +66,7 @@ const App: React.FC = () => {
           <LoadingPage onNext={handleNext} onBack={handleBack} />
         )}
         {stage === "background" && <BackgroundPage onNext={handleNext} />}
+        {stage === "result" && <ResultPage onNext = {handleNext} /> }
       </AnimatePresence>
     </div>
   );
