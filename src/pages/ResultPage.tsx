@@ -1,26 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { PageProps } from "../types";
 import { pageVariants } from "../constants/animations";
 
-const StartPage: React.FC<PageProps> = ({ onNext }) => (
-  <motion.div
+
+const StartPage: React.FC<PageProps> = ({ onNext }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div
     key="result"
     initial="initial"
     animate="animate"
     exit="exit"
     variants={pageVariants}
     className="absolute w-full h-full flex flex-col items-center justify-center p-6"
-    style={{ background: "linear-gradient(to bottom, #D5E3FF, #E6D7FF)" }}
+    style={{ background: "white" }}
   >
-    <img src="/cat.jpg" alt="결과 예시 이미지" className="w-100 h-auto mb-8" />
-    <h1 className="text-4xl font-bold text-white mb-8">네컷사진</h1>
+    <img src="/cat.jpg" alt="결과" className="w-full max-w-[90vw] max-h-[70vh] h-auto object-contain mt-8 mb-16" />
     <button
       onClick={onNext}
-      className="bg-white text-customBlue px-8 py-3 rounded-full font-bold text-lg shadow-lg hover:bg-pink-50 transition-colors duration-300"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className= "p-0 border-none bg-transparent cursor-pointer"
     >
-      시작하기
+      <img
+        src={isHovered ? "/hoverHome.png" : "/Home.png"}
+        alt="홈 버튼"
+        className="w-23 h-auto mb-1"
+      />
     </button>
   </motion.div>
-);
+  );
+};
+  
 export default StartPage;

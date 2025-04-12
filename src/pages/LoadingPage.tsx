@@ -57,20 +57,20 @@ const LoadingPage: React.FC<PageProps> = ({ onNext, onBack }) => {
       <img
         src="/Star.png"
         alt="배경 별"
-        className="absolute w-150 h-150 object-contain z-0"
+        className="absolute w-170 h-170 object-contain z-0"
       />
       {!completeAnimation ? (
         <>
           <div className="w-24 h-24 border-4 border-white border-t-transparent rounded-full animate-spin mb-8 z-10"></div>
-          <h1 className="text-3xl font-bold text-white mb-2 z-10">
+          <h1 className="text-4xl font-bold text-white mb-2 z-10">
             사진 처리 중...
           </h1>
-          <p className="text-[#814192] mb-8 z-10">잠시만 기다려주세요</p>
+          <p className="text-[#814192] text-lg mb-8 z-10">잠시만 기다려주세요</p>
         </>
       ) : (
         <button
           onClick={onNext}
-          className="bg-[#814192] text-white px-8 py-3 rounded-full font-bold text-lg shadow-lg hover:bg-[#672D77] transition-colors duration-300 z-10"
+          className="bg-[#814192] text-white px-16 py-6 rounded-full font-bold text-2xl shadow-lg hover:bg-[#672D77] transition-colors duration-300 z-10"
         >
           계속하기
         </button>
@@ -81,7 +81,7 @@ const LoadingPage: React.FC<PageProps> = ({ onNext, onBack }) => {
       >
         <svg
           viewBox="0 0 100 100"
-          className="w-15 h-15"
+          className="w-20 h-20"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path

@@ -18,13 +18,13 @@ const App: React.FC = () => {
     setStage((prev) => {
       switch (prev) {
         case "start":
-          return "guide";
+          return "result";
         case "guide":
           return "camera";
         case "camera":
           return "loading";
         case "loading":
-          return "background";
+          return "result";
         case "background":
           return "test";
         case "result":

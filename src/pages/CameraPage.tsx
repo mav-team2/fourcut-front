@@ -44,15 +44,15 @@ const CameraPage: React.FC<PageProps> = ({ onNext, onBack }) => {
       className="absolute w-full h-full flex flex-col items-center justify-between p-6"
       style={{ background: "linear-gradient(to bottom, #D5E3FF, #E6D7FF)" }}
     >
-      <h1 className="text-3xl font-bold text-white mb-4 pt-10">사진 촬영</h1>
+      <h1 className="text-5xl font-bold text-white mb-4 pt-10">사진 촬영</h1>
 
       {/* 카메라 박스 */}
-      <div className="bg-black rounded-lg w-full max-w-md aspect-[3/4] mb-4 relative">
+      <div className="absolute bottom-35 top-35 w-full max-w-[90vw] max-h-[80vh] aspect-[3/4] bg-black rounded-lg">
         <Webcam
           audio={false}
           ref={webcamRef}
           screenshotFormat="image/webp"
-          className="bg-black rounded-lg w-full max-w-md aspect-[3/4] mb-4 relative"
+          className="w-full h-full object-contain bg-black rounded-lg"
           videoConstraints={{
             facingMode: "user",
           }}
@@ -65,9 +65,9 @@ const CameraPage: React.FC<PageProps> = ({ onNext, onBack }) => {
       {/* 촬영 버튼 */}
       <button
         onClick={handleStartCountdown}
-        className="bg-white text-white w-16 h-16 rounded-full mb-4 flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors duration-300"
+        className="bg-white text-white w-20 h-20 rounded-full mb-3 flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors duration-300"
       >
-        <span className="w-12 h-12 rounded-full border-2 border-[#E6D7FF]"></span>
+        <span className="w-16 h-16 rounded-full border-2 border-[#E6D7FF]"></span>
       </button>
 
       {/* 뒤로가기 버튼 */}
@@ -77,7 +77,7 @@ const CameraPage: React.FC<PageProps> = ({ onNext, onBack }) => {
       >
         <svg
           viewBox="0 0 100 100"
-          className="w-15 h-15"
+          className="w-20 h-20"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
