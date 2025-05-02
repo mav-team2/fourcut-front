@@ -1,20 +1,20 @@
 // App.tsx
 import React, { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-// import IpadPro from "./pages/testPage";
 import StartPage from "./pages/StartPage";
 import GuidePage from "./pages/GuidePage";
 import LoadingPage from "./pages/LoadingPage";
 import CameraPage from "./pages/CameraPage";
 import BackgroundPage from "./pages/BackgroundPage";
+import ResultPage from "./pages/resultPage";
 
-type Stage = "start" | "guide" | "camera" | "loading" | "background" | "test";
+type Stage = "start" | "guide" | "camera" | "loading" | "background" | "result";
 
 const App: React.FC = () => {
   const [stage, setStage] = useState<Stage>("start");
 
   const handleNext = () => {
-    setStage((prev) => {
+    setStage((prev: Stage) => {
       switch (prev) {
         case "start":
           return "guide";
@@ -23,9 +23,7 @@ const App: React.FC = () => {
         case "camera":
           return "loading";
         case "loading":
-          return "background";
-        case "background":
-          return "test";
+          return "result";
         default:
           return "start";
       }
@@ -47,6 +45,8 @@ const App: React.FC = () => {
     });
   };
 
+  const handleRestart = () => setStage("start");
+
   return (
     <div className="relative w-full h-screen overflow-hidden">
       <AnimatePresence mode="wait">
@@ -63,6 +63,10 @@ const App: React.FC = () => {
           <LoadingPage onNext={handleNext} onBack={handleBack} />
         )}
         {stage === "background" && <BackgroundPage onNext={handleNext} />}
+        {stage === "result" && (
+          <ResultPage onRestart={handleRestart} onNext={() => {}} />
+        )}{" "}
+        {/* ResultPage 렌더링 */}
       </AnimatePresence>
     </div>
   );

@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useWebSocket } from "../contexts/websocketContext";
-import { COMFY_API_URL, PROCESSED_PHOTO_STORAGE_KEY } from "../config";
+import {
+  COMFY_API_ID,
+  COMFY_API_PW,
+  COMFY_API_URL,
+  PROCESSED_PHOTO_STORAGE_KEY,
+} from "../config";
 
 // ComfyUI 관련 상태 타입
 export type ComfyStatus =
@@ -128,6 +133,10 @@ export const useComfyUI = (): ComfyResponse => {
       const response = await fetch(uploadUrl, {
         method: "POST",
         body: formData,
+        // headers: {
+        //   Authorization: `Basic ${btoa(`${COMFY_API_ID}:${COMFY_API_PW}`)}`,
+        //   "Content-Type": `application/json`,
+        // },
       });
 
       if (!response.ok) {
@@ -161,7 +170,6 @@ export const useComfyUI = (): ComfyResponse => {
           headers: {
             // Authorization: `Basic ${btoa(`${COMFY_API_ID}:${COMFY_API_PW}`)}`,
             "Content-Type": `application/json`,
-            // "ngrok-skip-browser-warning": "69420",
           },
           body: JSON.stringify({
             prompt: workflow,
