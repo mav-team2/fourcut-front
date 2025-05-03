@@ -158,7 +158,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     <WebSocketContext.Provider
       value={{
         // sendMessage,
-        clientId: clientIdRef.current,
+        clientId: clientIdRef.current ?? "",
         connected,
         subscribe,
         subscribeBinary,

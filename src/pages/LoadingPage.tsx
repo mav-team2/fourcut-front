@@ -10,8 +10,6 @@ const LoadingPage: React.FC<PageProps> = ({ onNext, onBack }) => {
   const {
     uploadImage,
     executePrompt,
-    promptId,
-    status,
     isLoading,
     // getImage,
   } = useComfyUI();

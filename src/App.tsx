@@ -5,8 +5,7 @@ import StartPage from "./pages/StartPage";
 import GuidePage from "./pages/GuidePage";
 import LoadingPage from "./pages/LoadingPage";
 import CameraPage from "./pages/CameraPage";
-import BackgroundPage from "./pages/BackgroundPage";
-import ResultPage from "./pages/resultPage";
+import ResultPage from "./pages/ResultPage";
 
 type Stage = "start" | "guide" | "camera" | "loading" | "background" | "result";
 
@@ -62,7 +61,6 @@ const App: React.FC = () => {
         {stage === "loading" && (
           <LoadingPage onNext={handleNext} onBack={handleBack} />
         )}
-        {stage === "background" && <BackgroundPage onNext={handleNext} />}
         {stage === "result" && (
           <ResultPage onRestart={handleRestart} onNext={() => {}} />
         )}{" "}

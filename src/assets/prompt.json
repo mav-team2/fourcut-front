@@ -17,7 +17,7 @@
   },
   "2": {
     "inputs": {
-      "image": "test2.jpg",
+      "image": "input.png",
       "upload": "image"
     },
     "class_type": "LoadImage",
