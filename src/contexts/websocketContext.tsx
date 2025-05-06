@@ -15,7 +15,7 @@ type BinaryHandler = (data: Blob) => Promise<void> | void;
 
 type WebSocketContextType = {
   // sendMessage: (msg: string) => void;
-  clientId: string;
+  clientId: React.RefObject<string | null>;
   connected: boolean;
   subscribe: (handler: MessageHandler) => () => void;
   subscribeBinary: (handler: BinaryHandler) => () => void;
@@ -90,6 +90,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             const sid = data.data.sid;
             console.log("Received server sid, setting as clientId:", sid);
             clientIdRef.current = sid;
+            console.log("clientId is ", clientIdRef.current);
           }
 
           // 모든 등록된 핸들러에게 메시지 전달
@@ -108,6 +109,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
     ws.onclose = () => {
       console.warn("WebSocket disconnected. Reconnecting...");
+      console.log("clientId is ", clientIdRef.current);
       setConnected(false);
       setTimeout(connect, reconnectInterval); // 재연결
     };
@@ -120,6 +122,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     connect();
+
     return () => {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.close();
@@ -158,7 +161,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     <WebSocketContext.Provider
       value={{
         // sendMessage,
-        clientId: clientIdRef.current ?? "",
+        clientId: clientIdRef,
         connected,
         subscribe,
         subscribeBinary,

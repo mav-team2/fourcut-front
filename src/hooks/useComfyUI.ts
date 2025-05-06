@@ -100,7 +100,9 @@ export const useComfyUI = (): ComfyResponse => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const uploadImage = useCallback(async (image: string) => {
-    const uploadUrl = COMFY_API_URL + "/upload/image";
+    const uploadUrl = new URL(COMFY_API_URL);
+    uploadUrl.pathname = "/api/upload/image";
+
     const formData = new FormData();
     try {
       // 이미지 문자열을 Blob으로 변환
@@ -149,8 +151,10 @@ export const useComfyUI = (): ComfyResponse => {
   // 워크플로우 실행
   const executePrompt = useCallback(
     async (workflow: any) => {
-      if (!connected || !clientId) {
+      if (!connected || !clientId.current) {
         console.error("WebSocket not connected or client ID not available");
+        console.log("clientId is ", clientId);
+        console.log("connected is ", connected);
         return;
       }
 
@@ -168,7 +172,7 @@ export const useComfyUI = (): ComfyResponse => {
           },
           body: JSON.stringify({
             prompt: workflow,
-            client_id: clientId,
+            client_id: clientId.current,
           }),
         });
 
