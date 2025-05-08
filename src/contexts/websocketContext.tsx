@@ -7,7 +7,7 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { COMFY_API_ID, COMFY_API_PW, COMFY_WEBSOCKET_URL } from "../config";
+import { COMFY_WEBSOCKET_URL } from "../config";
 
 // 메시지 처리를 위한 타입
 type MessageHandler = (message: any) => Promise<void> | void;
@@ -52,8 +52,6 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     const url = new URL(COMFY_WEBSOCKET_URL);
-    url.username = COMFY_API_ID;
-    url.password = COMFY_API_PW;
 
     // 웹소켓 연결 생성 - 프로토콜 옵션으로 헤더 정보 전달
     const ws = new WebSocket(url);

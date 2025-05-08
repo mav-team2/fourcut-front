@@ -132,7 +132,6 @@ export const useComfyUI = (): ComfyResponse => {
         body: formData,
         // headers: {
         //   Authorization: `Basic ${btoa(`${COMFY_API_ID}:${COMFY_API_PW}`)}`,
-        //   "Content-Type": `application/json`,
         // },
       });
 
@@ -166,10 +165,10 @@ export const useComfyUI = (): ComfyResponse => {
       try {
         const response = await fetch(prompt_url, {
           method: "POST",
-          headers: {
-            // Authorization: `Basic ${btoa(`${COMFY_API_ID}:${COMFY_API_PW}`)}`,
-            "Content-Type": `application/json`,
-          },
+          // headers: {
+          //   // Authorization: `Basic ${btoa(`${COMFY_API_ID}:${COMFY_API_PW}`)}`,
+          //   "Content-Type": `application/json`,
+          // },
           body: JSON.stringify({
             prompt: workflow,
             client_id: clientId.current,
